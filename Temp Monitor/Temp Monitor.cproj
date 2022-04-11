@@ -847,6 +847,12 @@
     <Compile Include="src\millis.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\Remote.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Remote.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\screen_msg_buffer.c">
       <SubType>compile</SubType>
     </Compile>

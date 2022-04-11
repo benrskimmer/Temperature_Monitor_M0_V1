@@ -35,15 +35,14 @@
 #include <clock.h>
 #include <stdio.h>
 #include "millis.h"
-#include "wifi_drv.h"
 #include "wl_types.h"
-#include "WiFiNINA.h"
 #include "i2c_master.h"
 #include "ss_oled.h"
 #include "light_apa102.h"
 #include "conf_clocks.h"
 #include "Si7021.h"
 #include "VEML6030.h"
+#include "Remote.h"
 //#include "ECCX08/ECCX08.h"
 //#include "ECCX08/utility/ECCX08DefaultTLSConfig.h"
 
@@ -165,19 +164,7 @@ void printEncryptionType(int thisType) {
 }
 */
 
-void printMacAddress(uint8_t mac[]) {
-	printf("This Device's MAC: ");
-	for (int i = 5; i >= 0; i--) {
-		if (mac[i] < 16) {
-			printf("0");
-		}
-		printf("%x", mac[i]);
-		if (i > 0) {
-			printf(":");
-		}
-	}
-	printf("\n");
-}
+
 
 
 int EndsWith(const char *str, const char *suffix)
@@ -336,226 +323,11 @@ int main (void)
 	apa102_setleds(&LED, 1);
 
 	//ECCX08_init(&i2c_master_instance);
-	WiFi_Init();
-	//BearSSLClient_init();
-	
-	uint8_t* mac_address = wifi_drv_getMacAddress();
+	//	printf("%d", system_cpu_clock_get_hz());
 
-	printMacAddress(mac_address);
+	initRemote();
+	syncRemote();
 	
-
-	uint8_t num_SSID = wifi_drv_getScanNetworks();
-	printf("Number of 2.4GHz Networks: %d\n", num_SSID);
-	
-	for (int thisNet = 0; thisNet < num_SSID; thisNet++){
-		printf("%s\n", wifi_drv_getSSIDNetoworks(thisNet));
-	}
-	
-	
-	
-	printf("WiFi Firmware Version: %s\n", wifi_drv_getFwVersion());
-	printf("WiFi Temp in C: %.5f\n", wifi_drv_getTemperature());
-	
-	
-	char ssid[] = "Microsoft Store";
-	char passphrase[] = "pinkgiant071";
-	//char server[] = "www.google.com";
-	char server[] = "6afb0838-4b8e-492a-924c-4b8a5ac9302f.mock.pstmn.io";
-	//char server[] = "tls.ulfheim.net";
-	
-	volatile uint8_t status = WL_IDLE_STATUS;
-
-// 	set passphrase
-// 		if (wifi_drv_wifiSetPassphrase(ssid, strlen(ssid), passphrase, strlen(passphrase))!= WL_FAILURE)
-// 		{
-// 			//for (unsigned long start = millis(); (millis() - start) < _timeout;)
-// 			for (unsigned long start = 0; start < 1000; start++)
-// 			{
-// 				for(unsigned long i = 0; i < 50000000; i++) nop();
-// 				status = wifi_drv_getConnectionStatus();
-// 				if ((status != WL_IDLE_STATUS) && (status != WL_NO_SSID_AVAIL) && (status != WL_SCAN_COMPLETED)) {
-// 					printf("Connection Succeeded!!\n");
-// 					break;
-// 				}
-// 			}
-// 		}else{
-// 			status = WL_CONNECT_FAILED;
-// 			printf("Connection Failed!\n");
-// 		}
-	
-	//while (status != WL_CONNECTED) {
-	status = WiFi_begin_passphrase(ssid, passphrase);
-	if (status == WL_CONNECTED) {
-		printf("Connection Succeeded!!\n");
-	}
-	else{
-		//status = WL_CONNECT_FAILED;
-		printf("Connection Failed!\n");
-	}
-	
-// 	if (!ECCX08_writeConfiguration(ECCX08_DEFAULT_TLS_CONFIG)) {
-//       printf("Writing ECCX08 configuration failed!");
-//       while (1);
-//     }
-// 	else printf("Writing default ECCX08 configuration succeeded");
-// 	
-// 	if (!ECCX08_lock()) {
-// 		printf("Locking ECCX08 configuration failed!");
-// 		while (1);
-// 	}
-// 	else printf("PERMENANTLY LOCKED ECCX08");
-	
-/*	
-	ip_addr_t test_ip;
-	wifi_drv_getIpAddress(&test_ip);
-	printf("\nOur IP Address: ");
-	IP_PrintAddress(&test_ip);
-	printf("\n\n");
-	
-	
-	IPAddress(&server_ip, 142, 250, 72, 100);
-	*/
-// 	ip_addr_t server_ip;
-// 	if(WiFi_hostByName(server, &server_ip)){
-// 		printf("Resolved IP is: ");
-// 		IP_PrintAddress(&server_ip);
-// 		printf("\n");
-// 	}
-// 	else
-// 		printf("Couldn't resolve host name");
-	
-	if(WiFiClient_connectSSLHost(server, 443))
-	//if(WiFiClient_connectSSLIP(server_ip, 443))
-		printf("Connected Successfully to %s\n", server);
-	else
-		printf("Failed to connect to %s\n", server);
-		
-	
-		
-	WiFiClient_writeln("GET /get HTTP/1.1");
-	WiFiClient_writeln("Host: 6afb0838-4b8e-492a-924c-4b8a5ac9302f.mock.pstmn.io");
-	WiFiClient_writeln("Connection: close");
-	WiFiClient_writeln("");
-	
-	
-	printf("\n\n");
-	while (!WiFiClient_available());
-	while (WiFiClient_available() || WiFiClient_connected()) {
-		if(WiFiClient_available()) {
-			char c = WiFiClient_read_byte();
-			printf("%c", c);
-		}
-	}
-	
-	printf("\ndisconnecting from server.");
-	WiFiClient_stop();
-	
-
-	
-
-	
-//	printf("%d", system_cpu_clock_get_hz());
-
-	/*
-	WiFiServer_Init(80);
-	WiFi_beginAP_open("Rawstron Industries", 1);
-	WiFiServer_begin();
-	
-	ip_addr_t ip = WiFi_localIP();
-	printf("\n\nIP Address: ");
-	IP_PrintAddress(&ip);
-	printf("\n");
-	
-	int status = WL_IDLE_STATUS;
-	while(1) {
-		if (status != WiFi_status()) {
-			// it has changed update the variable
-			status = WiFi_status();
-
-			if (status == WL_AP_CONNECTED) {
-				// a device has connected to the AP
-				printf("Device connected to AP\n");
-				} else {
-				// a device has disconnected from the AP, and we are back in listening mode
-				printf("Device disconnected from AP\n");
-			}
-		}
-		
-		// listen for incoming clients
-		if (WiFiServer_available()) {               // if you get a client,
-			printf("new client\n");           // print a message out the serial port
-			char currentLine[256] = "";                // make a String to hold incoming data from the client
-			uint16_t lineIndex = 0;
-			while (WiFiClient_connected()) {            // loop while the client's connected
-				if (WiFiClient_available()) {             // if there's bytes to read from the client,
-					char c = WiFiClient_read_byte();             // read a byte, then
-					printf("%c", c);                    // print it out the serial monitor
-					if (c == '\n') {                    // if the byte is a newline character
-
-						// if the current line is blank, you got two newline characters in a row.
-						// that's the end of the client HTTP request, so send a response:
-						if (strlen(currentLine) == 0) {
-							// HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
-							// and a content-type so the client knows what's coming, then a blank line:
-							WiFiClient_writeln("HTTP/1.1 200 OK");
-							WiFiClient_writeln("Content-type:text/html");
-							WiFiClient_writeln("");
-
-							// the content of the HTTP response follows the header:
-							WiFiClient_write( "<!DOCTYPE html>" );
-							WiFiClient_write( "<html lang=\"en\">" );
-							WiFiClient_write( "<head><meta charset=\"UTF-8\"><meta name=\"HandheldFriendly\" content=\"True\">" );
-							WiFiClient_write( "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.5, user-scalable=yes\"></head>" );
-							WiFiClient_write( "<body>" );
-							WiFiClient_write("Click <a href=\"/H\">here</a> turn the LED on<br>");
-							WiFiClient_write("Click <a href=\"/L\">here</a> turn the LED off<br>");
-							WiFiClient_write( "</body></html>" );
-
-							// The HTTP response ends with another blank line:
-							WiFiClient_writeln("");
-							// break out of the while loop:
-							break;
-						}
-						else {      // if you got a newline, then clear currentLine:
-							currentLine[0] = 0;
-							lineIndex = 0;
-						}
-					}
-					else if (c != '\r') {    // if you got anything else but a carriage return character,
-						currentLine[lineIndex++] = c;      // add it to the end of the currentLine
-					}
-
-					// Check to see if the client request was "GET /H" or "GET /L":
-					if (EndsWith(currentLine, "GET /H")) {
-						//port_pin_set_output_level(LED_PIN, HIGH);               // GET /H turns the LED on
-						
-						cRGB_t LED_temp = {100, 0, 100};
-						apa102_setleds(&LED_temp, 1);
-						
-						msgs[0] = (char *)"NIIICE!!!";
-						oledFill(&screen, 0, 1);
-						oledSetTextWrap(&screen, 1);
-						oledWriteString(&screen, 0,25,2,msgs[rc], FONT_NORMAL, 0, 1);
-					}
-					if (EndsWith(currentLine, "GET /L")) {
-						//port_pin_set_output_level(LED_PIN, LOW);                // GET /L turns the LED off
-						
-						cRGB_t LED_temp = {1, 1, 1};
-						apa102_setleds(&LED_temp, 1);
-						
-						msgs[0] = (char *)"Hey!! Turn that sh*t back on!";
-						oledFill(&screen, 0, 1);
-						oledSetTextWrap(&screen, 1);
-						oledWriteString(&screen, 0,0,0,msgs[rc], FONT_NORMAL, 0, 1);
-					}
-				}
-			}
-			// close the connection:
-			WiFiClient_stop();
-			printf("client disconnected\n");
-		}
-	}
-	*/
 	
 	Si7021_begin(&i2c_master_instance);
 	VEML6030_begin(&i2c_master_instance);

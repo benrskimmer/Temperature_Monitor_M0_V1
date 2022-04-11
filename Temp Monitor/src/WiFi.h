@@ -35,6 +35,7 @@
 #include "WiFiSSLClient.h"
 #include "WiFiServer.h"
 //#include "WiFiStorage.h"
+#include "wifi_drv.h"
 
 // class WiFiClass
 // {
