@@ -35,7 +35,6 @@
 #include <clock.h>
 #include <stdio.h>
 #include "millis.h"
-#include "wl_types.h"
 #include "i2c_master.h"
 #include "ss_oled.h"
 #include "light_apa102.h"
