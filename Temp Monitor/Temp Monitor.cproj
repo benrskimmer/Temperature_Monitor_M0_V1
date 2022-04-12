@@ -859,6 +859,12 @@
     <Compile Include="src\screen_msg_buffer.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\Sensors.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Sensors.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\server_drv.c">
       <SubType>compile</SubType>
     </Compile>

@@ -39,9 +39,8 @@
 #include "ss_oled.h"
 #include "light_apa102.h"
 #include "conf_clocks.h"
-#include "Si7021.h"
-#include "VEML6030.h"
 #include "Remote.h"
+#include "Sensors.h"
 //#include "ECCX08/ECCX08.h"
 //#include "ECCX08/utility/ECCX08DefaultTLSConfig.h"
 
@@ -89,16 +88,7 @@ void vbus_event(bool b_vbus_high) {
 	}
 }
 
-// Possible values: .125, .25, 1, 2
-// Both .125 and .25 should be used in most cases except darker rooms.
-// A gain of 2 should only be used if the sensor will be covered by a dark
-// glass.
-float gain = .125;
 
-// Possible integration times in milliseconds: 800, 400, 200, 100, 50, 25
-// Higher times give higher resolutions and should be used in darker light.
-int integ_time = 100;
-long luxVal = 0;
 
 // cdc_enable() {
 // // Open UART and enable UART transition interrupts
@@ -327,12 +317,8 @@ int main (void)
 	initRemote();
 	syncRemote();
 	
-	
-	Si7021_begin(&i2c_master_instance);
-	VEML6030_begin(&i2c_master_instance);
-	
-	VEML6030_setGain(gain);
-	VEML6030_setIntegTime(integ_time);
+	sensorsInit(&i2c_master_instance);
+
 	
 // 	Si7021_setHeatLevel(0x0F);
 // 	Si7021_heater(TRUE);
@@ -365,19 +351,18 @@ int main (void)
 //			port_pin_toggle_output_level(LED_PIN);
 			temp_millis = millis();
 			
-			printf("Temperature: %.2fC\nHumidity: %.2f\n", Si7021_readTemperature(), Si7021_readHumidity());
-			printf("Light: %lu Lux\n\n", VEML6030_readLight());
+			sensorsUpdate();
 		
 			
 // 			msgs[0] = (char *)"Hello!!";
 // 			oledFill(&screen, 0, 1);
 // 			oledWriteString(&screen, 0,35,1,msgs[rc], FONT_NORMAL, 0, 1);
 		}
-		uint32_t brightness = (VEML6030_readLight()>>2);
-		if(brightness < 40) brightness = 40;
-		else if(brightness > 150) brightness = 150;
-		cRGB_t LED = {0, (uint8_t)brightness, 0};
-		apa102_setleds(&LED, 1);
+// 		uint32_t brightness = (VEML6030_readLight()>>2);
+// 		if(brightness < 40) brightness = 40;
+// 		else if(brightness > 150) brightness = 150;
+// 		cRGB_t LED = {0, (uint8_t)brightness, 0};
+// 		apa102_setleds(&LED, 1);
 		delay(50);
 	}
 }
