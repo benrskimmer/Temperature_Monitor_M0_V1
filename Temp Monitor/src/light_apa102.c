@@ -38,9 +38,6 @@ void apa102_init(uint8_t apa102_clk, uint8_t apa102_data) {
 	port_pin_set_output_level(apa102_clk_pin, 0);
 	port_pin_set_output_level(apa102_data_pin, 1);
 	
-//   apa102_DDRREG  |=  _BV(apa102_data);
-//   apa102_DDRREG  |=  _BV(apa102_clk);
-//   apa102_PORTREG &= ~_BV(apa102_clk);  // initial state of clk is low
 }
 
 // Assumed state before call: SCK- Low, Dat- High
