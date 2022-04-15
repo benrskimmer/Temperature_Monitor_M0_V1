@@ -778,6 +778,12 @@
     <Compile Include="src\ASF\sam0\drivers\sercom\i2c\i2c_sam0\i2c_master.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\Hardware.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Hardware.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\Client.h">
       <SubType>compile</SubType>
     </Compile>
@@ -857,6 +863,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\screen_msg_buffer.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Sensors.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Sensors.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\server_drv.c">
