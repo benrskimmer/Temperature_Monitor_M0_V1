@@ -34,7 +34,7 @@
 #include "Hardware.h"
 #include "Remote.h"
 #include "Sensors.h"
-#include "light_apa102.h"
+#include "Application.h"
 #include "user_board.h"
 //#include "ECCX08/ECCX08.h"
 //#include "ECCX08/utility/ECCX08DefaultTLSConfig.h"
@@ -147,7 +147,8 @@ int main (void)
 	
 	
 	hardwareInit();
-	sensorsInit();
+	
+	
 	
 	
 // 	uint8_t ch_from_USB = 0;
@@ -176,12 +177,11 @@ int main (void)
 // 		listNetworks();
 
 
+	startApp();
 
 
 
-
-	cRGB_t LED = {0, 100, 0};
-	apa102_setleds(&LED, 1);
+	
 
 	//ECCX08_init(&i2c_master_instance);
 	//	printf("%d", system_cpu_clock_get_hz());
