@@ -13,5 +13,6 @@
 void millis_init(void);
 uint32_t millis(void);
 void delay(uint16_t mS);
+uint16_t elapsedMS(void);
 
 #endif /* MILLIS_H_ */

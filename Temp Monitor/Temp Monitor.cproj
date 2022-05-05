@@ -781,6 +781,9 @@
     <Compile Include="src\Application.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\Application_Defaults.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\ASF\sam0\drivers\sercom\i2c\i2c_sam0\i2c_master.c">
       <SubType>compile</SubType>
     </Compile>
@@ -845,6 +848,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\IPAddress.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\LED_Utils.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\LED_Utils.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\light_apa102.c">

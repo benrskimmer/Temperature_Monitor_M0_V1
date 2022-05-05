@@ -142,40 +142,8 @@ int EndsWith(const char *str, const char *suffix)
 int main (void)
 {
 	
-
-	/* Insert application code here, after the board has been initialized. */
-	
-	
 	hardwareInit();
-	
-	
-	
-	
-// 	uint8_t ch_from_USB = 0;
-// 	uint8_t ch_from_SPI = 0;
-	
-// 	check for the WiFi module:
-// 		if (WiFi.status() == WL_NO_MODULE) {
-// 			printf("Communication with WiFi module failed!\n");
-// 			// don't continue
-// 			while (true);
-// 		}
-// 	
-// 		char fv[20] = WiFi.firmwareVersion();
-// 		printf("%s", fv);
-// 		if (fv < WIFI_FIRMWARE_LATEST_VERSION) {
-// 			printf("Please upgrade the firmware\n");
-// 		}
-// 	
-// 		// print your MAC address:
-// 		uint8_t mac[6];
-// 		WiFi.macAddress(mac);
-// 		printf("MAC: ");
-// 		printMacAddress(mac);
-// 		
-// 		printf("Scanning available networks...");
-// 		listNetworks();
-
+	/* Insert application code here, after the board has been initialized. */
 
 	startApp();
 
@@ -197,7 +165,7 @@ int main (void)
 	uint32_t temp_millis = 0;
 	
 	while(1){
-		
+		runApp();
 // 		if(STATUS_OK == spi_read_buffer_wait(&spi_master_instance, &ch_from_SPI, 1, 0xFF))
 // 		{
 // 			printf("%c",ch_from_SPI);
@@ -215,14 +183,14 @@ int main (void)
 // 		{
 // 			spi_write_buffer_wait(&spi_master_instance, &ch_from_USB, 1);
 // 		}
-		oledPower(&screen, port_pin_get_input_level(PIR_SENSOR_PIN));
-		port_pin_set_output_level(STAT_LED_PIN, port_pin_get_input_level(PIR_SENSOR_PIN));
+		
 
 		if( millis() >= (temp_millis + 2000)) {
 //			port_pin_toggle_output_level(LED_PIN);
 			temp_millis = millis();
-			
-			sensorsUpdate();
+			oledPower(&screen, port_pin_get_input_level(PIR_SENSOR_PIN));
+		port_pin_set_output_level(STAT_LED_PIN, port_pin_get_input_level(PIR_SENSOR_PIN));
+			//sensorsUpdate();
 		
 			printf("WiFi Radio R,G,B are %d,%d,%d,\n", 
 				port_pin_get_input_level(WIFI_GPIO_R_PIN),
@@ -236,8 +204,8 @@ int main (void)
 // 		uint32_t brightness = (VEML6030_readLight()>>2);
 // 		if(brightness < 40) brightness = 40;
 // 		else if(brightness > 150) brightness = 150;
-// 		cRGB_t LED = {0, (uint8_t)brightness, 0};
+// 		rgb_t_t LED = {0, (uint8_t)brightness, 0};
 // 		apa102_setleds(&LED, 1);
-		delay(50);
+		//delay(50);
 	}
 }
