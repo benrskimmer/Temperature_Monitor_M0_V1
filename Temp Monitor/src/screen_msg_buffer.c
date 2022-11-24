@@ -27,42 +27,63 @@ message_queues is a list of heads of queues. Each index representing a different
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include "SSD1306Ascii.h"
 
 scrn_msg_t message_buf[MAX_MSGS];
-scrn_msg_t* message_queues[LOWEST_MSG_PRIORITY + 1]; // each index is the node of a message priority queue
-scrn_msg_t* current_disp_msg = message_buf;
+scrn_msg_t* message_queues[MAX_MSG_PRIORITY]; // each index is the node of a message priority queue
+scrn_msg_t* current_disp_msg = NULL;//message_buf;
+uint8_t msg_count = 0; // count of messages used
+char current_line[21]; // the current line of the screen we're writing - note: this may be off screen if scrolling
+struct screen_state
+{
+	int time_left_ms; // time remaining before updating the screen with either a new message or scroll command
+	bool scrolling;
+	bool on;
+	bool split_screen; // set this to fix sensor data and stats to top of screen except when scrolling
+} state = {.time_left_ms = -1, .scrolling = false, .on = true, .split_screen = false};
 
-bool split_screen = false; // set this to fix sensor data and stats to top of screen
+
 
 //int8_t start_message_idx = -1;
 
-
+// ------- Private Defines -------
+#define SCROLL_SPEED_INTERVAL 100
 
 // ------- Private Function Prototypes -------
-uint8_t space_available(void);
+uint8_t free_messages(void);
+uint8_t used_messages(void);
 scrn_msg_t* get_free_msg(void);
 void insert_queue_priority(scrn_msg_t* msg);
 void insert_queue_next(scrn_msg_t* msg);
 void pop_queue_msg(scrn_msg_t* msg);
 scrn_msg_t* get_next_disp_msg(void);
 void disp_next_message(void);
+bool getNextLine(void);
 
 
 // ------- Private Functions -------
 
-uint8_t space_available(void)
+uint8_t free_messages(void)
 {
-	uint8_t count = 0;
-	for(int i = 0; i < MAX_MSGS; i++)
-	{
-		if(message_buf[i].used == false) count++;
-	}
-	return count;
+// 	uint8_t count = 0;
+// 	for(int i = 0; i < MAX_MSGS; i++)
+// 	{
+// 		if(message_buf[i].used == false) count++;
+// 	}
+// 	return count;
+	return MAX_MSGS - msg_count;
+}
+
+uint8_t used_messages(void)
+{
+	return msg_count;
 }
 
 // get the first unused message
 scrn_msg_t* get_free_msg(void)
 {
+	assert(free_messages());
+	
 	scrn_msg_t* msg = NULL;
 	
 	for(int i = 0; i < MAX_MSGS; i++)
@@ -81,6 +102,7 @@ scrn_msg_t* get_free_msg(void)
 // appends msg to the end of a priority queue
 void append_queue(scrn_msg_t* msg)
 {
+	msg_count++;
 	if(message_queues[msg->priority] == NULL) // if this priority queue is empty
 	{
 		message_queues[msg->priority] = msg; // append as head of this priority queue
@@ -122,6 +144,7 @@ void insert_queue_next(scrn_msg_t* msg)
 
 void pop_queue_msg(scrn_msg_t* msg)
 {
+	msg_count--;
 	if(message_queues[msg->priority] == msg) // if this is the head of a priority queue, update the head pointer
 		message_queues[msg->priority] = msg->next;
 		
@@ -141,10 +164,10 @@ scrn_msg_t* get_next_disp_msg(void)
 {
 	if(current_disp_msg == NULL) // if the current display message is NULL, check if any of the priority queues have a message
 	{
-		for(int i = 0; i <= LOWEST_MSG_PRIORITY; i++)
+		for(int priority = 0; priority < MAX_MSG_PRIORITY; priority++)
 		{
-			if(message_queues[i] != NULL)
-				return message_queues[i];
+			if(message_queues[priority] != NULL)
+				return message_queues[priority];
 		}
 		return NULL;
 	}
@@ -152,9 +175,9 @@ scrn_msg_t* get_next_disp_msg(void)
 	if(current_disp_msg->next != NULL)
 		return current_disp_msg->next;
 	
-	for(int i = 0; i <= LOWEST_MSG_PRIORITY; i++) // jump to the next priority queue
+	for(int i = 0; i < MAX_MSG_PRIORITY; i++) // jump to the next priority queue in order
 	{
-		uint8_t priority_queue = (current_disp_msg->priority + i) % LOWEST_MSG_PRIORITY;
+		uint8_t priority_queue = (current_disp_msg->priority + i) % MAX_MSG_PRIORITY;
 		if(message_queues[priority_queue] != NULL)
 			return message_queues[priority_queue];
 	}
@@ -166,14 +189,14 @@ scrn_msg_t* get_next_disp_msg(void)
 void disp_next_message(void)
 {
 	current_disp_msg = get_next_disp_msg();
+	if(current_disp_msg == NULL) return;
 	
+	state.time_left_ms = current_disp_msg->display_time_ms;
 	// push message to screen...
-	
-	
+	SSD1306_clearNoArg();
+	SSD1306_write_str(current_disp_msg->message);
 	
 }
-
-
 
 // ------- Public Functions -------
 
@@ -183,8 +206,8 @@ void disp_next_message(void)
 scrn_msg_t* new_message(char* msg_str, uint8_t priority)
 {
 	assert(msg_str);
-	size_t len = strlen(msg_str);
-	assert(msg_str <= MAX_MSG_LEN);
+	size_t len = strlen(msg_str) +1; // include null terminator in length
+	assert(len <= MAX_MSG_LEN);
 	assert(priority <= LOWEST_MSG_PRIORITY);
 	
 	scrn_msg_t* msg = get_free_msg();
@@ -192,7 +215,7 @@ scrn_msg_t* new_message(char* msg_str, uint8_t priority)
 	msg->used = true;
 	msg->active = true;
 	msg->cycles_left = -1;
-	msg->display_time = 3; // TODO, determine this on message length
+	msg->display_time_ms = 3000; // TODO, determine this on message length
 	msg->priority = priority;
 	msg->message = malloc(len);
 	
@@ -204,7 +227,6 @@ scrn_msg_t* new_message(char* msg_str, uint8_t priority)
 	
 	return msg;
 }
-
 
 void delete_message(scrn_msg_t* msg)
 {
@@ -220,45 +242,43 @@ void delete_message(scrn_msg_t* msg)
 	free(msg->message);
 }
 
-
 // gets a free message and configures it to display the given text once and then frees the message
 // intended for time-sensitive 1-time messages (debug etc)
 void print_message(char* msg_str)
 {
-	size_t len = strlen(msg_str);
-	assert(msg_str <= MAX_MSG_LEN);
+	size_t len = strlen(msg_str) +1; // include null terminator in length
+	assert(len <= MAX_MSG_LEN);
 	
 	scrn_msg_t* msg = get_free_msg();
 	
 	msg->used = true;
 	msg->active = true;
 	msg->cycles_left = 1;
-	msg->display_time = 3;
+	msg->display_time_ms = 3000;
 	msg->priority = LOWEST_MSG_PRIORITY; // default to lowest, doesn't really matter given we're inserting it next
 	msg->message = malloc(len);
 	
 	assert(msg->message != NULL);
 	
-	strlcpy(msg->message, msg_str, len);
+	strncpy(msg->message, msg_str, len);
 	
 	insert_queue_next(msg);
 	
-	if(current_disp_msg->cycles_left == -1) // if the current message is infinite, skip it and refresh the screen
+	if(current_disp_msg->cycles_left == -1 || msg_count == 1) // if the current message is infinite, skip it and refresh the screen or if this is the only message
 		disp_next_message();
 }
 
-
 void print_message_repeat(char* msg_str, uint8_t repeat_cycles, uint8_t priority)
 {
-	size_t len = strlen(msg_str);
-	assert(msg_str <= MAX_MSG_LEN);
+	size_t len = strlen(msg_str) +1; // include null terminator in length
+	assert(len <= MAX_MSG_LEN);
 	
 	scrn_msg_t* msg = get_free_msg();
 	
 	msg->used = true;
 	msg->active = true;
 	msg->cycles_left = (int8_t)repeat_cycles;
-	msg->display_time = 3;
+	msg->display_time_ms = 3000;
 	msg->priority = priority;
 	msg->message = malloc(len);
 	
@@ -269,7 +289,6 @@ void print_message_repeat(char* msg_str, uint8_t repeat_cycles, uint8_t priority
 	append_queue(msg);
 }
 	
-
 void update_priority(scrn_msg_t* msg, uint8_t priority)
 {
 	assert(priority <= LOWEST_MSG_PRIORITY);
@@ -280,12 +299,136 @@ void update_priority(scrn_msg_t* msg, uint8_t priority)
 	append_queue(msg);
 }
 
-
 void update_repeat(scrn_msg_t* msg, uint8_t repeats)
 {
 	msg->cycles_left = repeats;
 }
 
+void update_message(scrn_msg_t* msg, char* msg_str)
+{
+	size_t len = strlen(msg_str);
+	if(msg->message != NULL)
+		free(msg->message);
+	msg->message = malloc(len);
+	
+	assert(msg->message != NULL);
+	
+	strlcpy(msg->message, msg_str, len);
+}
+
 //void set_first(scrn_msg_t* msg);
 
-void refresh_screen_msg(void);
+void screen_active_mode(bool enable)
+{
+	if(enable == state.on)
+		return;
+	
+	SSD1306_oledPower(enable);
+	state.on = enable;
+}
+
+void refresh_screen_msg_ms(uint16_t ms_elapsed)
+{
+	if(state.time_left_ms >= 0)
+	{
+		state.time_left_ms -= ms_elapsed; // if the system hangs and several seconds elapse, we'll only jump at most one message
+	}
+	else if(used_messages() > 0)
+	{
+		if(state.scrolling == true)
+		{
+			//SSD1306_WriteCmd(SSD1306_SETSTARTLINE | scroll % 64);
+			state.time_left_ms = SCROLL_SPEED_INTERVAL;
+		}
+		else
+		{
+			if(current_disp_msg->cycles_left > 0)
+				current_disp_msg->cycles_left--;
+			if(current_disp_msg->cycles_left == 0)
+			{
+				scrn_msg_t* msg_to_delete = current_disp_msg;
+				disp_next_message();
+				delete_message(msg_to_delete);
+			}
+			else
+				disp_next_message();
+		}
+	}
+}
+
+// Get the next 20 characters (or up to space to prevent truncation)
+bool getNextLine() {
+
+	// This
+	static unsigned long txtPointer = 0;
+	static bool lineBreakInProgress = false;
+
+	for (int cnt = 0; cnt < 20; cnt++)
+		current_line[cnt] = ' ';
+
+	if (lineBreakInProgress){
+		lineBreakInProgress = false;
+		return true;
+	}
+
+	for (uint8_t cnt = 0; cnt < 20; cnt++) {
+
+		if (txtPointer < strlen(current_disp_msg->message)) {
+			char myChar = *(char*)(current_disp_msg->message + txtPointer);
+
+			// increment pointer before we return
+			txtPointer++;
+
+			// Deal with special characters (here, just new lines)
+			if (myChar == '`'){
+				//Set the flag that we have a line-break situation
+				lineBreakInProgress = true;
+				return true;
+			}
+
+			current_line[cnt] = myChar;
+		}
+		else {
+			txtPointer = 0;
+			//println("\nEnd of data!");
+			return false;
+		}
+	}
+
+	// Before returning the 20 char message, check that we have stopped on a space boundary or
+	// that the next character is a space (which can be ignored on the next line)
+	if (current_line[19] == ' ') {
+		//println("Final char is a space");
+		return true;
+	}
+
+	if (*(char*)(current_disp_msg->message + txtPointer) == ' ') {
+		//println("Next char is a space");
+		txtPointer++;
+		return true;
+	}
+
+	// We need to back track to the last space
+	for (uint8_t cnt = 18; cnt > 0; cnt--) {
+		if (current_line[cnt] == ' ') {
+
+			//print("Space found at char:");
+			//println(cnt);
+			// Space fill rest of line and decrement pointer for next line
+			for (uint8_t cnt2 = cnt; cnt2 < 20; cnt2++) {
+				current_line[cnt2] = ' ';
+				txtPointer--;
+			}
+
+			// If the next character in the string (yet to be printed) is a space
+			// increment the pointer so we don't start a line with a space
+			if (*(char*)(current_disp_msg->message + txtPointer) == ' ') {
+				//println("Next char is a space");
+				txtPointer++;
+			}
+
+			break;
+		}
+	}
+	return true;
+}

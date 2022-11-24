@@ -122,12 +122,12 @@
 #define  UDI_CDC_SET_DTR_EXT(port,set)
 #define  UDI_CDC_SET_RTS_EXT(port,set)
 
- #define UDI_CDC_ENABLE_EXT(port) my_callback_cdc_enable()
- extern bool my_callback_cdc_enable(void);
- #define UDI_CDC_DISABLE_EXT(port) my_callback_cdc_disable()
- extern void my_callback_cdc_disable(void);
-// #define  UDI_CDC_RX_NOTIFY(port) my_callback_rx_notify(port)
-// extern void my_callback_rx_notify(uint8_t port);
+ #define UDI_CDC_ENABLE_EXT(port) usb_callback_cdc_enable()
+ extern bool usb_callback_cdc_enable(void);
+ #define UDI_CDC_DISABLE_EXT(port) usb_callback_cdc_disable()
+ extern void usb_callback_cdc_disable(void);
+#define  UDI_CDC_RX_NOTIFY(port) usb_callback_rx_notify(port)
+extern void usb_callback_rx_notify(uint8_t port);
 // #define  UDI_CDC_TX_EMPTY_NOTIFY(port) my_callback_tx_empty_notify(port)
 // extern void my_callback_tx_empty_notify(uint8_t port);
 // #define  UDI_CDC_SET_CODING_EXT(port,cfg) my_callback_config(port,cfg)

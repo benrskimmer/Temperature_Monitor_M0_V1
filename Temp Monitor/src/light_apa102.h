@@ -35,11 +35,12 @@
 // Define APA102_BYTE_ORDER_GBR if byte order is not standard BGR.
 ///////////////////////////////////////////////////////////////////////
 
-#if defined(APA102_BYTE_ORDER_GBR)
-typedef struct cRGB { uint8_t g; uint8_t b; uint8_t r; } cRGB_t;   // GBR
-#else
-typedef struct cRGB { uint8_t b; uint8_t g; uint8_t r; } cRGB_t;   // BGR (APA102 Standard)
-#endif
+//typedef struct RGB { uint8_t r; uint8_t g; uint8_t b; } RGB_t;   // RGB (APA102 Standard)
+typedef struct rgb{
+	uint8_t r;
+	uint8_t g;
+	uint8_t b;
+} rgb_t;
 
 /* User Interface
  * 
@@ -54,8 +55,8 @@ typedef struct cRGB { uint8_t b; uint8_t g; uint8_t r; } cRGB_t;   // BGR (APA10
  */
 
 void apa102_init				  (uint8_t apa102_clk, uint8_t apa102_data);
-void apa102_setleds   	  		  (struct cRGB *ledarray, uint16_t number_of_leds);
-void apa102_setleds_brightness    (struct cRGB *ledarray, uint16_t number_of_leds,uint8_t brightness);
+void apa102_setleds   	  		  (rgb_t *ledarray, uint16_t number_of_leds);
+void apa102_setleds_brightness    (rgb_t *ledarray, uint16_t number_of_leds,uint8_t brightness);
 
 /*
  * Internal defines

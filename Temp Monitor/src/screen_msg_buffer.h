@@ -15,9 +15,15 @@
 
 
 // ------- settings -------
-#define MAX_MSGS 20 // max number of messages the library can queue up. memory isn't allocated until a message is created
-#define MAX_MSG_LEN 120 // max length of message string in characters
-#define LOWEST_MSG_PRIORITY 4 // P0 is the highest priority message
+#define MAX_MSGS 40 // max number of messages the library can queue up. memory isn't allocated until a message is created
+#define MAX_MSG_LEN 800 // max length of message string in characters
+typedef enum msg_priority // P0 is the highest priority message
+{
+	HIGHEST_MSG_PRIORITY = 0,
+	MEDIUM_MSG_PRIORITY,
+	LOWEST_MSG_PRIORITY,
+	MAX_MSG_PRIORITY
+} msg_priority_t;
 
 
 
@@ -27,7 +33,7 @@ typedef struct scrn_msg
 	bool used;
 	bool active;
 	int8_t cycles_left;
-	uint8_t display_time;
+	uint16_t display_time_ms;
 	uint8_t priority;
 	char* message;
 	
@@ -46,9 +52,11 @@ void print_message_repeat(char* msg_str, uint8_t repeat_cycles, uint8_t priority
 
 void update_priority(scrn_msg_t* msg, uint8_t priority);
 void update_repeat(scrn_msg_t* msg, uint8_t repeats);
+void update_message(scrn_msg_t* msg, char* msg_str);
 //void set_first(scrn_msg_t* msg); // sets this message to display first on wakeup, then normal priority takes over
+void screen_active_mode(bool enable);
 
-void refresh_screen_msg(void); // call this in 1mS superloop
+void refresh_screen_msg_ms(uint16_t ms_elapsed); // call this in 1mS superloop with the number of mS elapsed - this provides us control over how many mS we can jump if the system binds momentarily
 
 
 

@@ -33,3 +33,12 @@ void delay(uint16_t mS) {
 	uint32_t start = millis();
 	for(uint16_t i = start; millis() < start + mS;) nop();
 }
+
+uint16_t elapsedMS(void)
+{
+	static time_last_checked = 0;
+	uint16_t now = millis();
+	uint16_t time_elapsed = now - time_last_checked;
+	time_last_checked = now;
+	return time_elapsed;
+}

@@ -42,6 +42,7 @@
           <option id="sam0.drivers.system.clock" value="Add" config="" content-id="Atmel.ASF" />
           <option id="sam0.drivers.system.interrupt" value="Add" config="" content-id="Atmel.ASF" />
           <option id="sam0.drivers.system.pinmux" value="Add" config="" content-id="Atmel.ASF" />
+          <option id="sam0.drivers.rtc" value="Add" config="calendar_polled" content-id="Atmel.ASF" />
           <option id="sam0.utils.linker_scripts" value="Add" config="" content-id="Atmel.ASF" />
         </options>
         <configurations>
@@ -274,11 +275,14 @@
           <file path="src/ASF/sam0/drivers/sercom/i2c/quick_start_master/qs_i2c_master_basic_use.h" framework="" version="3.42.0" source="sam0\drivers\sercom\i2c\quick_start_master\qs_i2c_master_basic_use.h" changed="False" content-id="Atmel.ASF" />
           <file path="src/ASF/sam0/drivers/sercom/i2c/quick_start_master_dma/qs_i2c_master_dma.h" framework="" version="3.42.0" source="sam0\drivers\sercom\i2c\quick_start_master_dma\qs_i2c_master_dma.h" changed="False" content-id="Atmel.ASF" />
           <file path="src/ASF/sam0/drivers/sercom/i2c/i2c_sam0/i2c_master.c" framework="" version="3.42.0" source="sam0\drivers\sercom\i2c\i2c_sam0\i2c_master.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam0/drivers/rtc/rtc_calendar.h" framework="" version="3.42.0" source="sam0\drivers\rtc\rtc_calendar.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam0/drivers/rtc/rtc_tamper.h" framework="" version="3.42.0" source="sam0\drivers\rtc\rtc_tamper.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/sam0/drivers/rtc/rtc_sam_d_r_h/rtc_calendar.c" framework="" version="3.42.0" source="sam0\drivers\rtc\rtc_sam_d_r_h\rtc_calendar.c" changed="False" content-id="Atmel.ASF" />
         </files>
         <documentation help="http://asf.atmel.com/docs/3.35.1/common.applications.user_application.sam0_system.user_board.atsamd21g18a/html/index.html" />
         <offline-documentation help="" />
         <dependencies>
-          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.42.0" />
+          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.44.1" />
         </dependencies>
         <project id="common.applications.user_application.sam0_system.user_board.atsamd21g18a" value="Add" config="" content-id="Atmel.ASF" />
         <board id="board.user_board.samd21g" value="Add" config="" content-id="Atmel.ASF" />
@@ -331,6 +335,7 @@
       <Value>EXTINT_CALLBACK_MODE=true</Value>
       <Value>ADC_CALLBACK_MODE=true</Value>
       <Value>I2C_MASTER_CALLBACK_MODE=false</Value>
+      <Value>RTC_CALENDAR_ASYNC=false</Value>
     </ListValues>
   </armgcc.compiler.symbols.DefSymbols>
   <armgcc.compiler.directories.IncludePaths>
@@ -377,6 +382,8 @@
       <Value>../src/ASF/common/utils/stdio/stdio_usb</Value>
       <Value>../src/ASF/sam0/drivers/sercom/i2c</Value>
       <Value>../src/ASF/sam0/drivers/sercom/i2c/i2c_sam0</Value>
+      <Value>../src/ASF/sam0/drivers/rtc</Value>
+      <Value>../src/ASF/sam0/drivers/rtc/rtc_sam_d_r_h</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
   <armgcc.compiler.optimization.level>Optimize for size (-Os)</armgcc.compiler.optimization.level>
@@ -442,9 +449,11 @@
       <Value>../src/ASF/common/utils/stdio/stdio_usb</Value>
       <Value>../src/ASF/sam0/drivers/sercom/i2c</Value>
       <Value>../src/ASF/sam0/drivers/sercom/i2c/i2c_sam0</Value>
+      <Value>../src/ASF/sam0/drivers/rtc</Value>
+      <Value>../src/ASF/sam0/drivers/rtc/rtc_sam_d_r_h</Value>
     </ListValues>
   </armgcc.assembler.general.IncludePaths>
-  <armgcc.preprocessingassembler.general.AssemblerFlags>-DARM_MATH_CM0PLUS=true -DBOARD=USER_BOARD -DSPI_CALLBACK_MODE=true -DUSB_DEVICE_LPM_SUPPORT -DUDD_ENABLE -DEXTINT_CALLBACK_MODE=true -DADC_CALLBACK_MODE=true -DI2C_MASTER_CALLBACK_MODE=false</armgcc.preprocessingassembler.general.AssemblerFlags>
+  <armgcc.preprocessingassembler.general.AssemblerFlags>-DARM_MATH_CM0PLUS=true -DBOARD=USER_BOARD -DSPI_CALLBACK_MODE=true -DUSB_DEVICE_LPM_SUPPORT -DUDD_ENABLE -DEXTINT_CALLBACK_MODE=true -DADC_CALLBACK_MODE=true -DI2C_MASTER_CALLBACK_MODE=false -DRTC_CALENDAR_ASYNC=false</armgcc.preprocessingassembler.general.AssemblerFlags>
   <armgcc.preprocessingassembler.general.IncludePaths>
     <ListValues>
       <Value>../src/ASF/common/boards</Value>
@@ -489,6 +498,8 @@
       <Value>../src/ASF/common/utils/stdio/stdio_usb</Value>
       <Value>../src/ASF/sam0/drivers/sercom/i2c</Value>
       <Value>../src/ASF/sam0/drivers/sercom/i2c/i2c_sam0</Value>
+      <Value>../src/ASF/sam0/drivers/rtc</Value>
+      <Value>../src/ASF/sam0/drivers/rtc/rtc_sam_d_r_h</Value>
     </ListValues>
   </armgcc.preprocessingassembler.general.IncludePaths>
 </ArmGcc>
@@ -513,6 +524,7 @@
       <Value>EXTINT_CALLBACK_MODE=true</Value>
       <Value>ADC_CALLBACK_MODE=true</Value>
       <Value>I2C_MASTER_CALLBACK_MODE=false</Value>
+      <Value>RTC_CALENDAR_ASYNC=false</Value>
     </ListValues>
   </armgcc.compiler.symbols.DefSymbols>
   <armgcc.compiler.directories.IncludePaths>
@@ -559,6 +571,8 @@
       <Value>../src/ASF/common/utils/stdio/stdio_usb</Value>
       <Value>../src/ASF/sam0/drivers/sercom/i2c</Value>
       <Value>../src/ASF/sam0/drivers/sercom/i2c/i2c_sam0</Value>
+      <Value>../src/ASF/sam0/drivers/rtc</Value>
+      <Value>../src/ASF/sam0/drivers/rtc/rtc_sam_d_r_h</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
   <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
@@ -626,10 +640,12 @@
       <Value>../src/ASF/common/utils/stdio/stdio_usb</Value>
       <Value>../src/ASF/sam0/drivers/sercom/i2c</Value>
       <Value>../src/ASF/sam0/drivers/sercom/i2c/i2c_sam0</Value>
+      <Value>../src/ASF/sam0/drivers/rtc</Value>
+      <Value>../src/ASF/sam0/drivers/rtc/rtc_sam_d_r_h</Value>
     </ListValues>
   </armgcc.assembler.general.IncludePaths>
   <armgcc.assembler.debugging.DebugLevel>Default (-g)</armgcc.assembler.debugging.DebugLevel>
-  <armgcc.preprocessingassembler.general.AssemblerFlags>-DARM_MATH_CM0PLUS=true -DBOARD=USER_BOARD -DSPI_CALLBACK_MODE=true -DUSB_DEVICE_LPM_SUPPORT -DUDD_ENABLE -DEXTINT_CALLBACK_MODE=true -DADC_CALLBACK_MODE=true -DI2C_MASTER_CALLBACK_MODE=false</armgcc.preprocessingassembler.general.AssemblerFlags>
+  <armgcc.preprocessingassembler.general.AssemblerFlags>-DARM_MATH_CM0PLUS=true -DBOARD=USER_BOARD -DSPI_CALLBACK_MODE=true -DUSB_DEVICE_LPM_SUPPORT -DUDD_ENABLE -DEXTINT_CALLBACK_MODE=true -DADC_CALLBACK_MODE=true -DI2C_MASTER_CALLBACK_MODE=false -DRTC_CALENDAR_ASYNC=false</armgcc.preprocessingassembler.general.AssemblerFlags>
   <armgcc.preprocessingassembler.general.IncludePaths>
     <ListValues>
       <Value>../src/ASF/common/boards</Value>
@@ -674,6 +690,8 @@
       <Value>../src/ASF/common/utils/stdio/stdio_usb</Value>
       <Value>../src/ASF/sam0/drivers/sercom/i2c</Value>
       <Value>../src/ASF/sam0/drivers/sercom/i2c/i2c_sam0</Value>
+      <Value>../src/ASF/sam0/drivers/rtc</Value>
+      <Value>../src/ASF/sam0/drivers/rtc/rtc_sam_d_r_h</Value>
     </ListValues>
   </armgcc.preprocessingassembler.general.IncludePaths>
   <armgcc.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcc.preprocessingassembler.debugging.DebugLevel>
@@ -710,6 +728,8 @@
     <Folder Include="src\ASF\sam0\drivers\extint\extint_sam_d_r_h\" />
     <Folder Include="src\ASF\sam0\drivers\port\" />
     <Folder Include="src\ASF\sam0\drivers\port\quick_start\" />
+    <Folder Include="src\ASF\sam0\drivers\rtc\" />
+    <Folder Include="src\ASF\sam0\drivers\rtc\rtc_sam_d_r_h\" />
     <Folder Include="src\ASF\sam0\drivers\sercom\" />
     <Folder Include="src\ASF\sam0\drivers\sercom\i2c\" />
     <Folder Include="src\ASF\sam0\drivers\sercom\i2c\i2c_sam0\" />
@@ -761,6 +781,7 @@
     <Folder Include="src\config\" />
     <Folder Include="src\ECCX08\" />
     <Folder Include="src\ECCX08\utility\" />
+    <Folder Include="src\fonts\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\ASF\sam0\drivers\sercom\i2c\i2c_master.h">
@@ -775,7 +796,175 @@
     <None Include="src\ASF\sam0\drivers\sercom\i2c\quick_start_master_dma\qs_i2c_master_dma.h">
       <SubType>compile</SubType>
     </None>
+    <Compile Include="src\Application.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Application.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Application_Settings.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\sam0\drivers\rtc\rtc_calendar.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\sam0\drivers\rtc\rtc_tamper.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\app_config.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\sam0\drivers\rtc\rtc_sam_d_r_h\rtc_calendar.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\ASF\sam0\drivers\sercom\i2c\i2c_sam0\i2c_master.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\cJSON.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\cJSON.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\Adafruit5x7.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\allFonts.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\Arial14.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\Arial_bold_14.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\CalBlk36.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\Callibri10.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\Callibri11.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\Callibri11_bold.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\Callibri11_italic.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\Callibri14.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\Callibri15.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\CalLite24.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\Cooper19.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\Cooper21.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\Cooper26.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\Corsiva_12.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\cp437font8x8.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\fixednums15x31.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\fixednums7x15.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\fixednums8x16.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\fixed_bold10x15.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\font5x7.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\font8x8.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\Iain5x7.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\lcd5x7.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\lcdnums12x16.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\lcdnums14x24.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\newbasic3x5.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\Roosewood22.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\Roosewood26.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\Stang5x7.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\System5x7.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\SystemFont5x7.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\TimesNewRoman13.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\TimesNewRoman13_italic.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\TimesNewRoman16.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\TimesNewRoman16_bold.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\TimesNewRoman16_italic.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\utf8font10x16.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\Verdana12.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\Verdana12_bold.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\Verdana12_italic.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\Verdana_digits_24.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\Wendy3x5.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\X11fixed7x14.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\X11fixed7x14B.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fonts\ZevvPeep8x16.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\Hardware.c">
@@ -841,6 +1030,12 @@
     <Compile Include="src\IPAddress.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\LED_Utils.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\LED_Utils.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\light_apa102.c">
       <SubType>compile</SubType>
     </Compile>
@@ -880,10 +1075,25 @@
     <Compile Include="src\Si7021.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\SSD1306Ascii.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\SSD1306Ascii.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\SSD1306AsciiWire.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\SSD1306init.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\ss_oled.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\ss_oled.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\udp.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\VEML6030.c">
@@ -902,6 +1112,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\WiFiSocketBuffer.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\WiFiUdp.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\wifi_drv.c">

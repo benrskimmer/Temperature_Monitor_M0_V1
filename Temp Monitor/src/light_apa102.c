@@ -78,12 +78,12 @@ void apa102_write(uint8_t c) {
 port_pin_set_output_level(apa102_data_pin, 1); // clk low
 }
 
-void inline apa102_setleds(struct cRGB *ledarray, uint16_t leds)
+void inline apa102_setleds(rgb_t *ledarray, uint16_t leds)
 {
   apa102_setleds_brightness(ledarray,leds,31);
 }
  
-void inline apa102_setleds_brightness(struct cRGB *ledarray, uint16_t leds,uint8_t brightness)
+void inline apa102_setleds_brightness(rgb_t *ledarray, uint16_t leds,uint8_t brightness)
 {
   uint16_t i;
   uint8_t *rawarray=(uint8_t*)ledarray;
@@ -97,9 +97,9 @@ void inline apa102_setleds_brightness(struct cRGB *ledarray, uint16_t leds,uint8
   for (i=0; i<(leds+leds+leds); i+=3)
   {
     apa102_write(0xe0+brightness);  // Maximum global brightness
-    apa102_write(rawarray[i+0]);
-    apa102_write(rawarray[i+1]);
     apa102_write(rawarray[i+2]);
+    apa102_write(rawarray[i+1]);
+    apa102_write(rawarray[i+0]);
   }
 
   // Reset frame - Only needed for SK9822, has no effect on APA102
