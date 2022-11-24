@@ -36,6 +36,7 @@
 #include "WiFiServer.h"
 //#include "WiFiStorage.h"
 #include "wifi_drv.h"
+#include "WiFiUdp.h"
 
 // class WiFiClass
 // {
@@ -56,6 +57,9 @@
      * param ssid: Pointer to the SSID string.
      */
     int WiFi_begin_open(char* ssid);
+	
+	// same as above except asynchronous
+	void WiFi_begin_open_async(char* ssid);
 
     /* Start Wifi connection with WEP encryption.
      * Configure a key into the device. The key type (WEP-40, WEP-104)
@@ -75,6 +79,9 @@
      *        must be between ASCII 32-126 (decimal).
      */
     int WiFi_begin_passphrase(char* ssid, char *passphrase);
+	
+	// same as above except asynchronous, wl_status must be polled afterwards to ensure connection
+	void WiFi_begin_passphrase_async(char* ssid, char *passphrase);
 
 //    uint8_t WiFi_beginAP_open(char *ssid);
     uint8_t WiFi_beginAP_open(char *ssid, uint8_t channel);

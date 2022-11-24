@@ -43,7 +43,7 @@ unsigned long _timeout;
 
 void WiFi_Init(void)
 {
-	_timeout = 50000;
+	_timeout = 10000;
     wifi_drv_wifiDriverInit();
 }
 
@@ -71,6 +71,12 @@ int WiFi_begin_open(char* ssid)
 	   status = WL_CONNECT_FAILED;
    }
    return status;
+}
+
+// same as above except asynchronous
+void WiFi_begin_open_async(char* ssid)
+{
+	wifi_drv_wifiSetNetwork(ssid, strlen(ssid));
 }
 
 int WiFi_begin_WEP(char* ssid, uint8_t key_idx, char *key)
@@ -113,6 +119,12 @@ int WiFi_begin_passphrase(char* ssid, char *passphrase)
     	status = WL_CONNECT_FAILED;
     }
     return status;
+}
+
+void WiFi_begin_passphrase_async(char* ssid, char *passphrase)
+{
+	// set passphrase
+	wifi_drv_wifiSetPassphrase(ssid, strlen(ssid), passphrase, strlen(passphrase));
 }
 
 // uint8_t WiFi_beginAP_open(char *ssid)

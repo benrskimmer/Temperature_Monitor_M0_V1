@@ -24,7 +24,7 @@
 
 
 uint16_t _srcport;
-uint8_t _sock;   //not used
+uint8_t _sock;
 uint16_t  _socket;
 
 
@@ -93,7 +93,7 @@ int WiFiClient_connectSSLIP(ip_addr_t ip, uint16_t port)
 
       // wait 4 second for the connection to close
       while (!WiFiClient_connected() && millis() - start < 10000)
-//        delay(1);
+        delay(1);
 
       if (!WiFiClient_connected())
         {
@@ -200,7 +200,7 @@ size_t WiFiClient_write_byte(uint8_t b) {
 }
 
 size_t WiFiClient_write(char* string) {
-	volatile int test = strlen(string);
+	//volatile int test = strlen(string);
 	return WiFiClient_write_size((uint8_t*) string, strlen(string));
 }
 
@@ -280,13 +280,15 @@ void WiFiClient_stop() {
     return;
 
   ServerDrv_stopClient(_sock);
+  //ServerDrv_stopClient(0);
 
   int count = 0;
   // wait maximum 5 secs for the connection to close
   while (WiFiClient_status() != CLOSED && ++count < 50)
-//    delay(100);
+    delay(100);
 
   WiFiSocketBuffer_close(_sock);
+  //WiFiSocketBuffer_close(0);
   _sock = 255;
 }
 

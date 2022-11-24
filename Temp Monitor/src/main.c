@@ -145,6 +145,8 @@ int main (void)
 	hardwareInit();
 	/* Insert application code here, after the board has been initialized. */
 
+	initApp();
+
 	startApp();
 
 
@@ -154,8 +156,7 @@ int main (void)
 	//ECCX08_init(&i2c_master_instance);
 	//	printf("%d", system_cpu_clock_get_hz());
 
-	remoteInit();
-	remoteSync();
+	
 	
 	
 
@@ -166,6 +167,7 @@ int main (void)
 	
 	while(1){
 		runApp();
+		runRemote();
 // 		if(STATUS_OK == spi_read_buffer_wait(&spi_master_instance, &ch_from_SPI, 1, 0xFF))
 // 		{
 // 			printf("%c",ch_from_SPI);
@@ -188,24 +190,15 @@ int main (void)
 		if( millis() >= (temp_millis + 2000)) {
 //			port_pin_toggle_output_level(LED_PIN);
 			temp_millis = millis();
-			oledPower(&screen, port_pin_get_input_level(PIR_SENSOR_PIN));
-		port_pin_set_output_level(STAT_LED_PIN, port_pin_get_input_level(PIR_SENSOR_PIN));
+			//oledPower(&screen, port_pin_get_input_level(PIR_SENSOR_PIN));
+		
 			//sensorsUpdate();
 		
-			printf("WiFi Radio R,G,B are %d,%d,%d,\n", 
-				port_pin_get_input_level(WIFI_GPIO_R_PIN),
-				port_pin_get_input_level(WIFI_GPIO_G_PIN),
-				port_pin_get_input_level(WIFI_GPIO_B_PIN));
-			
-// 			msgs[0] = (char *)"Hello!!";
-// 			oledFill(&screen, 0, 1);
-// 			oledWriteString(&screen, 0,35,1,msgs[rc], FONT_NORMAL, 0, 1);
+// 			printf("WiFi Radio R,G,B are %d,%d,%d,\n", 
+// 				port_pin_get_input_level(WIFI_GPIO_R_PIN),
+// 				port_pin_get_input_level(WIFI_GPIO_G_PIN),
+// 				port_pin_get_input_level(WIFI_GPIO_B_PIN));
 		}
-// 		uint32_t brightness = (VEML6030_readLight()>>2);
-// 		if(brightness < 40) brightness = 40;
-// 		else if(brightness > 150) brightness = 150;
-// 		rgb_t_t LED = {0, (uint8_t)brightness, 0};
-// 		apa102_setleds(&LED, 1);
-		//delay(50);
+
 	}
 }

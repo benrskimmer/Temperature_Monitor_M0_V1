@@ -781,7 +781,7 @@ int iLen;
 //
 // Initializes the OLED controller into "page mode"
 //
-int oledInit(SSOLED *pOLED, struct i2c_master_module* hw_module, int iType, int iAddr, int bFlip, int bInvert)
+int ss_oledInit(SSOLED *pOLED, struct i2c_master_module* hw_module, int iType, int iAddr, int bFlip, int bInvert)
 {
 unsigned char uc[4];
 int rc = OLED_NOT_FOUND;

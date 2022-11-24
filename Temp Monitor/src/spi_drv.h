@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 #include "preprocessor.h"
 #include <inttypes.h>
 #include <stdio.h>
-#include "wifi_spi.h" // REINCLUDE THISSSSSSS!!!!!!
+#include "wifi_spi.h"
 
 #define SPI_START_CMD_DELAY 10
 

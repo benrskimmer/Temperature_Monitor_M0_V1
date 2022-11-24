@@ -13,13 +13,15 @@
 #include "spi_drv.h"
 #include "millis.h"
 
-
-#define SLAVESELECT PIN_PA14 // ss
-#define SLAVEREADY PIN_PA28 // handshake pin - NOT SURE ABOUT THIS ONE!
-#define SLAVERESET PIN_PA08  // reset pin
-#define NINA_GPIO0 PIN_PA27
-
 bool inverted_reset = false;
+
+#define WIFISELECT		PIN_PA14 // ss
+#define WIFIREADY		PIN_PA28 // handshake pin
+#define WIFIRESET		PIN_PA08 // reset pin
+#define NINA_GPIO0		PIN_PA27 // interrupt pin
+#define WIFI_MISO		PIN_PA13
+#define WIFI_MOSI		PIN_PA12
+#define	WIFI_SCK		PIN_PA15
 
 //#define DELAY_TRANSFER()
 
@@ -49,19 +51,37 @@ void wifi_spi_getParam(uint8_t* param);
 
 void configure_spi_master(void)
 {
+	struct system_pinmux_config wifi_mosi;
+	system_pinmux_get_config_defaults(&wifi_mosi);
+	wifi_mosi.direction = SYSTEM_PINMUX_PIN_DIR_OUTPUT;
+	wifi_mosi.mux_position = MUX_PA12C_SERCOM2_PAD0;
+	system_pinmux_pin_set_config(WIFI_MOSI, &wifi_mosi);
+	  
+	struct system_pinmux_config wifi_miso;
+	system_pinmux_get_config_defaults(&wifi_miso);
+	wifi_miso.direction = SYSTEM_PINMUX_PIN_DIR_INPUT;
+	wifi_miso.mux_position = MUX_PA13C_SERCOM2_PAD1;
+	system_pinmux_pin_set_config(WIFI_MISO, &wifi_miso);
+	  
+	struct system_pinmux_config wifi_sck;
+	system_pinmux_get_config_defaults(&wifi_sck);
+	wifi_sck.direction = SYSTEM_PINMUX_PIN_DIR_OUTPUT;
+	wifi_sck.mux_position = MUX_PA15C_SERCOM2_PAD3;
+	system_pinmux_pin_set_config(PIN_PA15, &wifi_sck);
+	
 	struct spi_config config_spi_master;
 	struct spi_slave_inst_config slave_dev_config;
 	/* Configure and initialize software device instance of peripheral slave */
 	spi_slave_inst_get_config_defaults(&slave_dev_config);
-	slave_dev_config.ss_pin = SLAVESELECT;
+	slave_dev_config.ss_pin = WIFISELECT;
 	spi_attach_slave(&slave, &slave_dev_config);
 	/* Configure, initialize and enable SERCOM SPI module */
 	spi_get_config_defaults(&config_spi_master);
 	config_spi_master.mux_setting = SPI_SIGNAL_MUX_SETTING_N;
-	config_spi_master.pinmux_pad0 = PIN_PA12;
-	config_spi_master.pinmux_pad1 = PIN_PA13;
+	config_spi_master.pinmux_pad0 = WIFI_MOSI;
+	config_spi_master.pinmux_pad1 = WIFI_MISO;
 	config_spi_master.pinmux_pad2 = PINMUX_UNUSED;
-	config_spi_master.pinmux_pad3 = PIN_PA15;
+	config_spi_master.pinmux_pad3 = WIFI_SCK;
 	test_result = spi_init(&spi_master_instance, SERCOM2, &config_spi_master);
 	spi_enable(&spi_master_instance);
 }
@@ -69,73 +89,44 @@ void configure_spi_master(void)
 void wifi_spi_begin()
 {
 
-      //SPIWIFI.begin();
+	struct port_config output_pin;
+	port_get_config_defaults(&output_pin);
+	output_pin.direction = PORT_PIN_DIR_OUTPUT;
+	port_pin_set_config(WIFISELECT, &output_pin);
+	port_pin_set_config(WIFIRESET, &output_pin);
+	port_pin_set_config(NINA_GPIO0, &output_pin);
+	port_pin_set_config(WIFI_SCK, &output_pin);
+	
+	struct port_config input_pin;
+	port_get_config_defaults(&input_pin);
+	input_pin.direction = PORT_PIN_DIR_INPUT;
+	port_pin_set_config(WIFIREADY, &input_pin);
+	port_pin_set_config(WIFI_MISO, &input_pin);
+	port_pin_set_config(WIFI_MOSI, &input_pin);
 	  
-	  struct system_pinmux_config wifi_mosi;
-	  system_pinmux_get_config_defaults(&wifi_mosi);
-	  wifi_mosi.direction = SYSTEM_PINMUX_PIN_DIR_OUTPUT;
-	  wifi_mosi.mux_position = MUX_PA12C_SERCOM2_PAD0;
-	  system_pinmux_pin_set_config(PIN_PA12D_SERCOM4_PAD0, &wifi_mosi);
+	// set support pin states
+	port_pin_set_output_level(NINA_GPIO0, HIGH);
+	port_pin_set_output_level(WIFISELECT, HIGH);
+	port_pin_set_output_level(WIFIRESET, HIGH);
+	delay(10);
+	port_pin_set_output_level(WIFIRESET, LOW);
+	delay(750);
 	  
-	  struct system_pinmux_config wifi_miso;
-	  system_pinmux_get_config_defaults(&wifi_miso);
-	  wifi_miso.direction = SYSTEM_PINMUX_PIN_DIR_INPUT;
-	  wifi_miso.mux_position = MUX_PA13C_SERCOM2_PAD1;
-	  system_pinmux_pin_set_config(PIN_PA13D_SERCOM4_PAD1, &wifi_miso);
+	port_pin_set_output_level(NINA_GPIO0, LOW);
+	port_pin_set_config(NINA_GPIO0, &input_pin);
 	  
-	  struct system_pinmux_config wifi_sck;
-	  system_pinmux_get_config_defaults(&wifi_sck);
-	  wifi_sck.direction = SYSTEM_PINMUX_PIN_DIR_OUTPUT;
-	  wifi_sck.mux_position = MUX_PA15C_SERCOM2_PAD3;
-	  system_pinmux_pin_set_config(PIN_PA15D_SERCOM4_PAD3, &wifi_sck);
+	//putting this here for testing only
+	//spi_select_slave(&spi_master_instance, &slave, true);
 	  
-	  struct port_config output_pin;
-	  port_get_config_defaults(&output_pin);
-	  output_pin.direction = PORT_PIN_DIR_OUTPUT;
-	  port_pin_set_config(SLAVESELECT, &output_pin);
-	  
-	  port_pin_set_config(SLAVERESET, &output_pin);
-	  
-	  port_pin_set_config(NINA_GPIO0, &output_pin);
-	  
-//	  port_pin_set_output_level(NINA_GPIO0, HIGH);
-	  
-	  struct port_config input_pin;
-	  port_get_config_defaults(&input_pin);
-	  input_pin.direction = PORT_PIN_DIR_INPUT;
-	  port_pin_set_config(SLAVEREADY, &input_pin);
-//	  port_pin_set_config(NINA_GPIO0, &input_pin); // this is not right and needs to be fixed...
-	  
-	  configure_spi_master();
+	configure_spi_master();
 	  
 	  
-	  // set support pin states
-	  port_pin_set_output_level(NINA_GPIO0, HIGH);
-//	  port_pin_set_output_level(SLAVESELECT, 1); not needed, handled by asf
-	  port_pin_set_output_level(SLAVERESET, HIGH);
-	  // time for state machine + scheduler...
-	  
-	  // dumb blocking wait... cause we don't have time to write a task scheduler, too busy with chicks rn - or trying to be anyways...
-	  //for(unsigned long i = 0; i < 5000000; i++) nop();
-	  delay(10);
-	  
-	  port_pin_set_output_level(SLAVERESET, LOW);
-	  
-	 // for(unsigned long i = 0; i < 50000000; i++) nop();
-	  delay(750);
-	  
-	  port_pin_set_output_level(NINA_GPIO0, LOW);
-	  port_pin_set_config(NINA_GPIO0, &input_pin);
-	  
-	  //putting this here for testing only
-	  //spi_select_slave(&spi_master_instance, &slave, true);
-	  
-	  wifi_initialized = true;
+	wifi_initialized = true;
 	  
 	  /*
 	  
       pinMode(SLAVESELECT, OUTPUT);
-      pinMode(SLAVEREADY, INPUT);
+      pinMode(WIFIREADY, INPUT);
       pinMode(SLAVERESET, OUTPUT);
       pinMode(NINA_GPIO0, OUTPUT);
 
@@ -157,14 +148,14 @@ void wifi_spi_begin()
 }
 
 void wifi_spi_end() {
-    port_pin_set_output_level(SLAVERESET, 0);
+    port_pin_set_output_level(WIFIRESET, 0);
 
 	struct port_config input_pin; // set select pin to input
 	port_get_config_defaults(&input_pin);
 	input_pin.direction = PORT_PIN_DIR_OUTPUT;
-	port_pin_set_config(SLAVESELECT, &input_pin);
+	port_pin_set_config(WIFISELECT, &input_pin);
 	
-	spi_disable(&spi_master_instance);
+	spi_reset(&spi_master_instance);
 	
     wifi_initialized = false;
 }
@@ -183,7 +174,7 @@ void wifi_spi_spiSlaveSelect()
 
     // wait for up to 5 ms for the NINA to indicate it is not ready for transfer
     // the timeout is only needed for the case when the shield or module is not present
-    for (unsigned long start = millis(); (port_pin_get_input_level(SLAVEREADY) != HIGH) && (millis() - start) < 5;);
+    for (unsigned long start = millis(); (port_pin_get_input_level(WIFIREADY) != HIGH) && (millis() - start) < 5;);
 }
 
 
@@ -264,10 +255,10 @@ char wifi_spi_readChar(void)
         return 0;                                   \
     }else                                           \
 
-#define waitSlaveReady() (port_pin_get_input_level(SLAVEREADY) == LOW)
-#define waitSlaveSign() (port_pin_get_input_level(SLAVEREADY) == HIGH)
-#define waitSlaveSignalH() while(port_pin_get_input_level(SLAVEREADY) != HIGH){}
-#define waitSlaveSignalL() while(port_pin_get_input_level(SLAVEREADY) != LOW){}
+#define waitSlaveReady() (port_pin_get_input_level(WIFIREADY) == LOW)
+#define waitSlaveSign() (port_pin_get_input_level(WIFIREADY) == HIGH)
+#define waitSlaveSignalH() while(port_pin_get_input_level(WIFIREADY) != HIGH){}
+#define waitSlaveSignalL() while(port_pin_get_input_level(WIFIREADY) != LOW){}
 
 void wifi_spi_waitForSlaveSign(void)
 {
